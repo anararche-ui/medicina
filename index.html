@@ -1,1 +1,517 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Salud Diaria - Control de Medicación</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563EB; /* Azul fuerte y legible */
+            --primary-dark: #1E40AF;
+            --success-color: #16A34A; /* Verde claro */
+            --success-bg: #DCFCE7;
+            --bg-color: #F3F4F6;
+            --card-bg: #FFFFFF;
+            --text-main: #1F2937;
+            --text-secondary: #4B5563;
+            --danger-color: #DC2626;
+            --border-radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            font-size: 18px; /* Tamaño base grande para legibilidad */
+        }
+
+        /* Header */
+        header {
+            background-color: var(--card-bg);
+            padding: 20px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .date-display {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .header-image {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            border-radius: var(--border-radius);
+            margin-top: 15px;
+            object-fit: cover;
+        }
+
+        /* Main Container */
+        main {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow);
+            border: 1px solid #E5E7EB;
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-main);
+        }
+
+        /* Next Dose Alert */
+        .alert-box {
+            background-color: #EFF6FF;
+            border-left: 6px solid var(--primary-color);
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .alert-info h3 {
+            color: var(--primary-dark);
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+
+        .alert-time {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+            width: 100%;
+            margin-top: 10px;
+            font-size: 1.2rem;
+        }
+
+        .btn-success:hover {
+            background-color: #15803D;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background-color: #EFF6FF;
+        }
+
+        /* Medication List */
+        .med-list {
+            list-style: none;
+        }
+
+        .med-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid #E5E7EB;
+        }
+
+        .med-item:last-child {
+            border-bottom: none;
+        }
+
+        .med-details {
+            flex-grow: 1;
+        }
+
+        .med-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            display: block;
+        }
+
+        .med-dose {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .med-time {
+            background-color: #F3F4F6;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-right: 15px;
+            white-space: nowrap;
+        }
+
+        .checkbox-custom {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #D1D5DB;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .checkbox-custom.checked {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+            color: white;
+        }
+
+        .checkbox-custom.checked::after {
+            content: '✓';
+            font-weight: bold;
+        }
+
+        /* Add Form */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #D1D5DB;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        /* Emergency Section */
+        .emergency-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .emergency-card {
+            background-color: #FEF2F2;
+            border: 1px solid #FECACA;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--danger-color);
+            font-weight: 700;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .emergency-card:hover {
+            background-color: #FEE2E2;
+        }
+
+        .emergency-icon {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .alert-box {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .btn {
+                width: 100%;
+            }
+            .emergency-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-content">
+            <h1>Mi Salud Diaria</h1>
+            <div class="date-display" id="currentDate">Cargando fecha...</div>
+            <img src="https://image.qwenlm.ai/public_source/38ae64ca-a858-4eed-b349-c6bce8eb3782/15bf401cd-385f-4826-b512-b85e1e483e2a.png" alt="Ilustración de pastillas y agua" class="header-image">
+        </div>
+    </header>
+
+    <main>
+        <!-- Próxima Dosis -->
+        <section class="card">
+            <h2 class="card-title">⏰ Próxima Toma</h2>
+            <div class="alert-box">
+                <div class="alert-info">
+                    <h3 id="nextMedName">Paracetamol 500mg</h3>
+                    <div class="alert-time" id="nextMedTime">12:00 PM</div>
+                    <p style="margin-top: 5px; color: var(--text-secondary);">Para el dolor de cabeza leve</p>
+                </div>
+                <button class="btn btn-primary" onclick="markAsTaken('next')">Marcar como Tomada</button>
+            </div>
+        </section>
+
+        <!-- Lista de Hoy -->
+        <section class="card">
+            <h2 class="card-title">💊 Medicación de Hoy</h2>
+            <ul class="med-list" id="medList">
+                <!-- Se llena con JS -->
+            </ul>
+            <button class="btn btn-outline" style="width: 100%; margin-top: 20px;" onclick="toggleForm()">+ Añadir Nuevo Medicamento</button>
+            
+            <!-- Formulario Oculto -->
+            <div id="addMedForm" style="display: none; margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
+                <h3 style="margin-bottom: 15px;">Nuevo Medicamento</h3>
+                <div class="form-group">
+                    <label class="form-label">Nombre del Medicamento</label>
+                    <input type="text" id="newMedName" class="form-input" placeholder="Ej. Aspirina">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Dosis / Instrucciones</label>
+                    <input type="text" id="newMedDose" class="form-input" placeholder="Ej. 1 comprimido después de comer">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Hora</label>
+                    <input type="time" id="newMedTime" class="form-input">
+                </div>
+                <button class="btn btn-success" onclick="addMedication()">Guardar Medicamento</button>
+            </div>
+        </section>
+
+        <!-- Emergencia -->
+        <section class="card">
+            <h2 class="card-title">🚑 En caso de Emergencia</h2>
+            <div class="emergency-grid">
+                <a href="tel:112" class="emergency-card">
+                    <span class="emergency-icon">📞</span>
+                    Llamar al 112
+                </a>
+                <a href="tel:000" class="emergency-card">
+                    <span class="emergency-icon">👨‍️</span>
+                    Mi Doctor
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Datos iniciales de ejemplo
+        let medications = [
+            { id: 1, name: "Omeprazol", dose: "20mg - En ayunas", time: "08:00", taken: true },
+            { id: 2, name: "Metformina", dose: "850mg - Con comida", time: "14:00", taken: false },
+            { id: 3, name: "Atorvastatina", dose: "20mg - Por la noche", time: "22:00", taken: false }
+        ];
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', () => {
+            updateDate();
+            renderList();
+            updateNextDose();
+            setInterval(updateNextDose, 60000); // Actualizar cada minuto
+        });
+
+        // Actualizar fecha
+        function updateDate() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const today = new Date();
+            document.getElementById('currentDate').textContent = today.toLocaleDateString('es-ES', options);
+        }
+
+        // Renderizar lista
+        function renderList() {
+            const list = document.getElementById('medList');
+            list.innerHTML = '';
+
+            // Ordenar por hora
+            const sortedMeds = [...medications].sort((a, b) => a.time.localeCompare(b.time));
+
+            sortedMeds.forEach(med => {
+                const li = document.createElement('li');
+                li.className = 'med-item';
+                if (med.taken) {
+                    li.style.opacity = '0.6';
+                    li.style.textDecoration = 'line-through';
+                }
+
+                li.innerHTML = `
+                    <div class="med-details">
+                        <span class="med-name">${med.name}</span>
+                        <span class="med-dose">${med.dose}</span>
+                    </div>
+                    <span class="med-time">${formatTime(med.time)}</span>
+                    <div class="checkbox-custom ${med.taken ? 'checked' : ''}" onclick="toggleTaken(${med.id})"></div>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        // Formatear hora 24h a 12h
+        function formatTime(timeStr) {
+            const [hour, minute] = timeStr.split(':');
+            const h = parseInt(hour);
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            const h12 = h % 12 || 12;
+            return `${h12}:${minute} ${ampm}`;
+        }
+
+        // Marcar como tomada
+        function toggleTaken(id) {
+            const med = medications.find(m => m.id === id);
+            if (med) {
+                med.taken = !med.taken;
+                renderList();
+                updateNextDose();
+            }
+        }
+
+        // Función específica para el botón grande de "Próxima Toma"
+        function markAsTaken(type) {
+            if (type === 'next') {
+                // Encontrar la primera no tomada
+                const sortedMeds = [...medications].sort((a, b) => a.time.localeCompare(b.time));
+                const nextMed = sortedMeds.find(m => !m.taken);
+                if (nextMed) {
+                    toggleTaken(nextMed.id);
+                    alert(`¡Bien hecho! Has registrado ${nextMed.name}.`);
+                }
+            }
+        }
+
+        // Actualizar la tarjeta de "Próxima Toma"
+        function updateNextDose() {
+            const sortedMeds = [...medications].sort((a, b) => a.time.localeCompare(b.time));
+            const nextMed = sortedMeds.find(m => !m.taken);
+            
+            const nameEl = document.getElementById('nextMedName');
+            const timeEl = document.getElementById('nextMedTime');
+
+            if (nextMed) {
+                nameEl.textContent = nextMed.name;
+                timeEl.textContent = formatTime(nextMed.time);
+                timeEl.style.color = 'var(--text-main)';
+            } else {
+                nameEl.textContent = "¡Todo completado!";
+                timeEl.textContent = "🎉";
+                timeEl.style.color = 'var(--success-color)';
+            }
+        }
+
+        // Mostrar/Ocultar formulario
+        function toggleForm() {
+            const form = document.getElementById('addMedForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Añadir medicamento
+        function addMedication() {
+            const name = document.getElementById('newMedName').value;
+            const dose = document.getElementById('newMedDose').value;
+            const time = document.getElementById('newMedTime').value;
+
+            if (!name || !time) {
+                alert("Por favor, escribe al menos el nombre y la hora.");
+                return;
+            }
+
+            const newMed = {
+                id: Date.now(),
+                name: name,
+                dose: dose || "Según indicación médica",
+                time: time,
+                taken: false
+            };
+
+            medications.push(newMed);
+            
+            // Limpiar formulario
+            document.getElementById('newMedName').value = '';
+            document.getElementById('newMedDose').value = '';
+            document.getElementById('newMedTime').value = '';
+            
+            toggleForm();
+            renderList();
+            updateNextDose();
+        }
+    </script>
+</body>
+</html>
+
 
